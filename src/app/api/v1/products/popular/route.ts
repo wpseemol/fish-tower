@@ -1,22 +1,26 @@
 import { connectMongoDB } from '@/db/connections';
-import { Category } from '@/lib/schemas/mongoose/category';
+import { Product } from '@/lib/schemas/mongoose/product';
+import { SortOrder } from 'mongoose';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
     try {
-        /**
-         * connect mongodb use mongoose.
-         */
-
         await connectMongoDB();
 
-        const showColumns = 'name slug imgUrl';
-        const response = await Category.find({}, showColumns).lean();
+        const sortOption: { [key: string]: SortOrder } = { popularity: -1 };
+        const limitOption = 10;
+        const showColumns = 'name slug images thumbnail currency price';
+        // '';
+
+        const response = await Product.find({}, showColumns)
+            .sort(sortOption)
+            .limit(limitOption)
+            .lean();
 
         /**
          * Array to mongodb `_id` replace `id`
          */
-        const categories = response.map((item) => {
+        const popularProducts = response.map((item) => {
             const { _id, ...rest } = item;
             return {
                 id: _id,
@@ -26,10 +30,12 @@ export async function GET() {
 
         return NextResponse.json(
             {
-                message: 'Get category successful.',
-                data: categories,
+                message: 'Popular Product get successful.',
+                data: popularProducts,
             },
-            { status: 200 }
+            {
+                status: 200,
+            }
         );
     } catch (error: unknown) {
         if (error instanceof Error) {

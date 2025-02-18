@@ -1,24 +1,12 @@
 import { Card } from '@/components/ui/card';
+import { getCategory } from '@/server/category';
 import { Category } from '@/types/home';
 import Image from 'next/image';
 import Link from 'next/link';
 import HomeTitle from './home-title';
 
 export default async function CategorySection() {
-    let categories: Category[] | null = null;
-
-    try {
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}api/v1/category`
-        );
-
-        if (response.ok) {
-            const { data } = await response.json();
-            categories = data;
-        }
-    } catch (error) {
-        console.error('category fetch:', error);
-    }
+    const categories = await getCategory();
 
     return (
         <section className="container mx-auto md:pb-10 pb-5 px-2 md:px-0">
@@ -31,11 +19,7 @@ export default async function CategorySection() {
 
             {categories && (
                 <div
-                    className={`${
-                        categories.length <= 7
-                            ? 'md:flex justify-center items-center flex-wrap grid'
-                            : 'grid 2xl:grid-cols-8 xl:grid-cols-6 lg:grid-cols-5 items-center'
-                    } grid-cols-4 md:gap-2 gap-1 mt-5`}>
+                    className={`grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-x-2 gap-y-2 md:gap-y-5 mt-10`}>
                     {categories.map((category: Category) => {
                         return (
                             <Card
